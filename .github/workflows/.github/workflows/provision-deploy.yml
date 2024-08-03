@@ -1,0 +1,38 @@
+name: Provision and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.0
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
+  deploy:
+    needs: provision
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run Ansible Playbook
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        playbook: deploy.yml
